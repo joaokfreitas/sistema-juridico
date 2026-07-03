@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Jurídico & Cartório Online</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#1a365d;--primary-light:#2c5282;--accent:#e53e3e;--success:#38a169;--warning:#d69e2e;--bg:#0f172a;--bg-card:#1e293b;--bg-hover:#334155;--text:#f1f5f9;--muted:#94a3b8;--border:#334155;--r:16px;--rs:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;width:260px;height:100vh;background:var(--bg-card);border-right:1px solid var(--border);z-index:100;padding:24px 0;transition:transform .3s}
+.sidebar-logo{display:flex;align-items:center;gap:12px;padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.sidebar-logo i{font-size:28px;color:var(--accent)}
+.sidebar-logo span{font-size:18px;font-weight:800}
+.sidebar-logo small{display:block;font-size:11px;color:var(--muted);font-weight:500}
+.nav-item{display:flex;align-items:center;gap:14px;padding:14px 24px;cursor:pointer;transition:all .2s;border-left:3px solid transparent;color:var(--muted);font-weight:500;font-size:14px}
+.nav-item:hover{background:var(--bg-hover);color:var(--text)}
+.nav-item.active{background:rgba(229,62,62,.1);color:var(--accent);border-left-color:var(--accent)}
+.nav-item i{width:22px;text-align:center;font-size:16px}
+.main-content{margin-left:260px;padding:32px;min-height:100vh}
+.page-header{margin-bottom:28px}
+.page-header h1{font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:6px}
+.page-header p{color:var(--muted);font-size:15px}
+.hidden{display:none!important}
+.card{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);padding:24px;margin-bottom:20px;transition:all .2s}
+.card:hover{border-color:var(--primary-light)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.card-title{font-size:18px;font-weight:700;display:flex;align-items:center;gap:10px}
+.card-title i{color:var(--accent)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:var(--rs);border:none;cursor:pointer;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;transition:all .2s}
+.btn-primary{background:var(--accent);color:white}
+.btn-primary:hover{background:#c53030;transform:translateY(-1px);box-shadow:0 4px 15px rgba(229,62,62,.3)}
+.btn-secondary{background:var(--primary-light);color:white}
+.btn-secondary:hover{background:var(--primary)}
+.btn-success{background:var(--success);color:white}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.form-group{margin-bottom:18px}
+.form-group label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.form-control{width:100%;padding:12px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;transition:all .2s}
+.form-control:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(229,62,62,.1)}
+textarea.form-control{min-height:100px;resize:vertical}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:768px){.form-row{grid-template-columns:1fr}}
+.checkbox-group{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px}
+.checkbox-item{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg);border:2px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .2s;user-select:none}
+.checkbox-item:hover{border-color:var(--primary-light)}
+.checkbox-item.active{border-color:var(--success);background:rgba(56,161,105,.1)}
+.checkbox-item i{font-size:16px;color:var(--muted)}
+.checkbox-item.active i{color:var(--success)}
+.checkbox-item span{font-size:13px;font-weight:600}
+.crime-list{max-height:400px;overflow-y:auto}
+.crime-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:10px;cursor:pointer;transition:all .2s;position:relative}
+.crime-item:hover{border-color:var(--primary-light);background:var(--bg-hover)}
+.crime-item.selected{border-color:var(--accent);background:rgba(229,62,62,.08)}
+.crime-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.crime-item.selected .crime-check{background:var(--accent);border-color:var(--accent)}
+.crime-item.selected .crime-check i{color:white;font-size:12px}
+.crime-info{flex:1}
+.crime-name{font-weight:600;font-size:14px;margin-bottom:2px}
+.crime-desc{font-size:12px;color:var(--muted)}
+.crime-penalty{text-align:right;font-size:13px}
+.crime-penalty .pena{color:var(--accent);font-weight:700}
+.crime-penalty .multa{color:var(--warning);font-weight:600;font-size:12px}
+.crime-actions{display:flex;gap:6px;opacity:0;transition:opacity .2s}
+.crime-item:hover .crime-actions{opacity:1}
+.crime-actions button{background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;border-radius:4px;transition:all .2s}
+.crime-actions button:hover{color:var(--accent);background:rgba(229,62,62,.1)}
+.preview-panel{background:var(--bg);border:2px solid var(--border);border-radius:var(--r);padding:24px;position:sticky;top:20px}
+.preview-header{display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.preview-header i{font-size:20px;color:var(--accent)}
+.preview-header h3{font-size:16px;font-weight:700}
+.preview-section{margin-bottom:16px}
+.preview-section h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
+.preview-section p,.preview-section div{font-size:13px;line-height:1.6}
+.preview-crimes-list{display:flex;flex-direction:column;gap:6px}
+.preview-crime-tag{display:flex;justify-content:space-between;padding:8px 12px;background:var(--bg-card);border-radius:8px;font-size:13px}
+.preview-total{margin-top:20px;padding-top:16px;border-top:2px solid var(--accent)}
+.total-row{display:flex;justify-content:space-between;padding:6px 0;font-size:14px}
+.total-row.final{font-size:18px;font-weight:800;color:var(--accent);margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)}
+.discount-tag{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--success);margin-top:4px}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.active{opacity:1;pointer-events:all}
+.modal{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);width:90%;max-width:560px;max-height:90vh;overflow-y:auto;transform:scale(.95);transition:transform .3s;box-shadow:0 10px 40px rgba(0,0,0,.4)}
+.modal-overlay.active .modal{transform:scale(1)}
+.modal-header{padding:24px 28px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.modal-header h2{font-size:20px;font-weight:700}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.modal-close:hover{background:var(--bg);color:var(--accent)}
+.modal-body{padding:24px 28px}
+.modal-footer{padding:20px 28px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px}
+.cartorio-categories{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.cartorio-category{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden;transition:all .2s}
+.cartorio-category:hover{border-color:var(--primary-light)}
+.cat-header{padding:18px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .2s}
+.cat-header:hover{background:var(--bg-hover)}
+.cat-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+.cat-icon.portes{background:rgba(56,161,105,.15);color:var(--success)}
+.cat-icon.casamentos{background:rgba(66,153,225,.15);color:#4299e1}
+.cat-icon.adocao{background:rgba(236,201,75,.15);color:#ecc94b}
+.cat-icon.divorcio{background:rgba(237,100,100,.15);color:#ed6464}
+.cat-info{flex:1}
+.cat-info h3{font-size:15px;font-weight:700}
+.cat-info span{font-size:12px;color:var(--muted)}
+.cat-toggle{color:var(--muted);transition:transform .3s}
+.cat-toggle.open{transform:rotate(180deg)}
+.cat-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.cat-body.open{max-height:800px}
+.cat-body-inner{padding:0 20px 20px}
+.service-item{display:flex;align-items:center;gap:12px;padding:12px 14px;margin-bottom:8px;background:var(--bg);border-radius:var(--rs);border:1px solid transparent;cursor:pointer;transition:all .2s}
+.service-item:hover{border-color:var(--primary-light);background:var(--bg-hover)}
+.service-item i{font-size:14px;width:20px;text-align:center}
+.service-item span{font-size:13px;font-weight:500;flex:1}
+.service-item .service-count{background:var(--primary);color:white;font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px}
+.subpage{background:var(--bg-card);border-radius:var(--r);border:1px solid var(--border);padding:24px}
+.subpage-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.subpage-header i{font-size:24px}
+.subpage-header h2{font-size:22px;font-weight:700}
+.back-btn{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:16px;transition:color .2s}
+.back-btn:hover{color:var(--accent)}
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{text-align:left;padding:12px 16px;background:var(--bg);color:var(--muted);font-weight:600;text-transform:uppercase;font-size:11px;letter-spacing:.5px}
+.data-table td{padding:14px 16px;border-bottom:1px solid var(--border)}
+.data-table tr:hover td{background:var(--bg)}
+.status-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.status-pendente{background:rgba(214,158,46,.15);color:var(--warning)}
+.status-emandamento{background:rgba(66,153,225,.15);color:#4299e1}
+.status-concluido{background:rgba(56,161,105,.15);color:var(--success)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--rs);padding:20px;text-align:center}
+.stat-value{font-size:32px;font-weight:800;color:var(--accent);margin-bottom:4px}
+.stat-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+.mobile-toggle{display:none;position:fixed;top:16px;left:16px;z-index:200;background:var(--bg-card);border:1px solid var(--border);color:var(--text);padding:10px 14px;border-radius:10px;cursor:pointer}
+@media(max-width:1024px){.sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}.main-content{margin-left:0;padding:20px;padding-top:60px}.mobile-toggle{display:block}.crime-actions{opacity:1!important}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.animate-in{animation:fadeIn .4s ease forwards}
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state i{font-size:48px;margin-bottom:16px;opacity:.3}
+.empty-state p{font-size:14px}
+.tag-input-container{display:flex;flex-wrap:wrap;gap:6px;padding:8px;background:var(--bg);border:1px solid var(--border);border-radius:var(--rs);min-height:44px;cursor:text}
+.tag-input-container:focus-within{border-color:var(--accent)}
+.tag{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:var(--primary-light);border-radius:6px;font-size:12px;font-weight:500}
+.tag button{background:none;border:none;color:var(--muted);cursor:pointer;font-size:12px}
+.tag button:hover{color:var(--accent)}
+.tag-input{background:none;border:none;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;flex:1;min-width:80px;outline:none}
+@media print{.sidebar,.mobile-toggle,.btn{display:none!important}.main-content{margin-left:0;padding:0}.preview-panel{position:static;border:2px solid #000}}
+</style>
+</head>
+<body>
+
+<button class="mobile-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')"><i class="fas fa-bars"></i></button>
+
+<nav class="sidebar" id="sidebar">
+<div class="sidebar-logo"><i class="fas fa-scale-balanced"></i><div><span>Justiça Digital</span><small>Sistema Jurídico & Cartório</small></div></div>
+<div class="nav-item active" onclick="showPage('calculadora')" data-page="calculadora"><i class="fas fa-gavel"></i><span>Calculadora Penal</span></div>
+<div class="nav-item" onclick="showPage('cartorio')" data-page="cartorio"><i class="fas fa-building-columns"></i><span>Cartório Online</span></div>
+</nav>
+
+<main class="main-content">
+
+<!-- CALCULADORA -->
+<div id="page-calculadora" class="page animate-in">
+<div class="page-header">
+<h1><i class="fas fa-gavel" style="color:var(--accent);margin-right:12px"></i>Calculadora Penal</h1>
+<p>Selecione os crimes cometidos, preencha os dados do acusado e visualize a pena total calculada.</p>
+</div>
+<div style="display:grid;grid-template-columns:1fr 380px;gap:24px">
+<div>
+<div class="card">
+<div class="card-header"><div class="card-title"><i class="fas fa-user"></i>Dados do Acusado</div></div>
+<div class="form-row">
+<div class="form-group"><label>ID do Acusado</label><input type="text" class="form-control" id="acusado-id" placeholder="Ex: AC-2024-001"></div>
+<div class="form-group"><label>Nome Completo</label><input type="text" class="form-control" id="acusado-nome" placeholder="Nome do acusado"></div>
+</div>
+<div class="form-group"><label>Descrição do Acontecimento</label><textarea class="form-control" id="acusado-descricao" placeholder="Descreva detalhadamente o ocorrido..."></textarea></div>
+<div class="form-group"><label>Itens Apreendidos</label><div class="tag-input-container" id="tag-container" onclick="document.getElementById('tag-input').focus()"><input type="text" class="tag-input" id="tag-input" placeholder="Digite e pressione Enter..." onkeydown="handleTagInput(event)"></div></div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title"><i class="fas fa-hand-holding-heart"></i>Circunstâncias Atenuantes</div></div>
+<div class="checkbox-group">
+<div class="checkbox-item" id="chk-confesso" onclick="toggleCheckbox('confesso')"><i class="fas fa-check-circle"></i><span>Réu Confesso</span></div>
+<div class="checkbox-item" id="chk-advogado" onclick="toggleCheckbox('advogado')"><i class="fas fa-user-tie"></i><span>Advogado Presente</span></div>
+<div class="checkbox-item" id="chk-primario" onclick="toggleCheckbox('primario')"><i class="fas fa-star"></i><span>Réu Primário</span></div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header"><div class="card-title"><i class="fas fa-list"></i>Crimes Cadastrados</div><button class="btn btn-primary btn-sm" onclick="openModal('add')"><i class="fas fa-plus"></i>Adicionar Crime</button></div>
+<div class="crime-list" id="crime-list"></div>
+</div>
+</div>
+
+<div>
+<div class="preview-panel">
+<div class="preview-header"><i class="fas fa-file-contract"></i><h3>Prévia da Sentença</h3></div>
+<div class="preview-section"><h4>Dados do Acusado</h4><div id="preview-id" style="color:var(--muted)">ID: --</div><div id="preview-nome" style="color:var(--muted)">Nome: --</div></div>
+<div class="preview-section"><h4>Ocorrido</h4><p id="preview-descricao" style="color:var(--muted);font-style:italic">Nenhuma descrição informada.</p></div>
+<div class="preview-section"><h4>Itens Apreendidos</h4><div id="preview-itens" style="color:var(--muted)">Nenhum item apreendido.</div></div>
+<div class="preview-section"><h4>Crimes Selecionados</h4><div class="preview-crimes-list" id="preview-crimes"><div style="color:var(--muted);font-style:italic">Nenhum crime selecionado.</div></div></div>
+<div class="preview-section"><h4>Circunstâncias</h4><div id="preview-circunstancias" style="color:var(--muted)">Nenhuma circunstância atenuante.</div></div>
+<div class="preview-total">
+<div class="total-row"><span>Pena Total (bruta)</span><span id="total-pena-bruta">0 meses</span></div>
+<div class="total-row"><span>Multa Total (bruta)</span><span id="total-multa-bruta">R$ 0,00</span></div>
+<div class="total-row" id="row-desconto" style="display:none"><span>Desconto Atenuante</span><span id="total-desconto" style="color:var(--success)">-0%</span></div>
+<div class="total-row final"><span>PENA FINAL</span><span id="total-pena-final">0 meses</span></div>
+<div class="total-row final" style="color:var(--warning)"><span>MULTA FINAL</span><span id="total-multa-final">R$ 0,00</span></div>
+</div>
+<button class="btn btn-secondary" style="width:100%;margin-top:16px" onclick="window.print()"><i class="fas fa-print"></i>Imprimir Prévia</button>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CARTORIO -->
+<div id="page-cartorio" class="page hidden">
+<div class="page-header">
+<h1><i class="fas fa-building-columns" style="color:var(--accent);margin-right:12px"></i>Cartório Online</h1>
+<p>Gerencie registros de portes, casamentos, adoções e divórcios.</p>
+</div>
+<div class="stats-grid">
+<div class="stat-card"><div class="stat-value" id="stat-total">0</div><div class="stat-label">Total de Registros</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-pendentes">0</div><div class="stat-label">Pendentes</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-concluidos">0</div><div class="stat-label">Concluídos</div></div>
+<div class="stat-card"><div class="stat-value" id="stat-valor">R$ 0</div><div class="stat-label">Valor Total</div></div>
+</div>
+<div class="cartorio-categories" id="cartorio-categories"></div>
+<div id="cartorio-subpage" class="hidden" style="margin-top:20px">
+<div class="back-btn" onclick="backToCategories()"><i class="fas fa-arrow-left"></i> Voltar para Categorias</div>
+<div class="subpage" id="subpage-content"></div>
+</div>
+</div>
+
+</main>
+
+<!-- MODAL CRIME -->
+<div class="modal-overlay" id="modal-crime">
+<div class="modal">
+<div class="modal-header"><h2 id="modal-title">Adicionar Crime</h2><button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button></div>
+<div class="modal-body">
+<input type="hidden" id="crime-edit-id">
+<div class="form-group"><label>Nome do Crime</label><input type="text" class="form-control" id="crime-nome" placeholder="Ex: Furto Qualificado"></div>
+<div class="form-group"><label>Por que foi Criado</label><input type="text" class="form-control" id="crime-motivo" placeholder="Motivo da criação deste crime"></div>
+<div class="form-group"><label>Descrição do Crime</label><textarea class="form-control" id="crime-descricao" placeholder="Descreva o crime..."></textarea></div>
+<div class="form-row">
+<div class="form-group"><label>Pena (em meses)</label><input type="number" class="form-control" id="crime-pena" placeholder="Ex: 24" min="0"></div>
+<div class="form-group"><label>Valor da Multa (R$)</label><input type="number" class="form-control" id="crime-multa" placeholder="Ex: 5000" min="0" step="0.01"></div>
+</div>
+</div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeModal()">Cancelar</button><button class="btn btn-primary" onclick="saveCrime()"><i class="fas fa-save"></i>Salvar Crime</button></div>
+</div>
+</div>
+
+<!-- MODAL REGISTRO -->
+<div class="modal-overlay" id="modal-registro">
+<div class="modal">
+<div class="modal-header"><h2 id="modal-reg-title">Novo Registro</h2><button class="modal-close" onclick="closeRegistroModal()"><i class="fas fa-times"></i></button></div>
+<div class="modal-body" id="modal-reg-body"></div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeRegistroModal()">Cancelar</button><button class="btn btn-primary" onclick="saveRegistro()"><i class="fas fa-save"></i>Salvar Registro</button></div>
+</div>
+</div>
+
+<script>
+let crimes=JSON.parse(localStorage.getItem('crimes'))||[
+{id:1,nome:'Furto Simples',motivo:'Proteger o patrimônio alheio',descricao:'Subtrair coisa móvel alheia para si ou para outrem.',pena:12,multa:2000},
+{id:2,nome:'Furto Qualificado',motivo:'Agravar penas em situações especiais',descricao:'Furto com uso de arma, escalada, ou em lugar fechado.',pena:24,multa:5000},
+{id:3,nome:'Roubo',motivo:'Proteger a integridade física e patrimonial',descricao:'Subtrair coisa móvel com uso de violência ou grave ameaça.',pena:48,multa:10000},
+{id:4,nome:'Homicídio Simples',motivo:'Proteger a vida humana',descricao:'Matar alguém sem qualificadora.',pena:72,multa:15000},
+{id:5,nome:'Tráfico de Drogas',motivo:'Combater o narcotráfico',descricao:'Importar, exportar, remeter, preparar, produzir ou vender drogas.',pena:60,multa:20000},
+{id:6,nome:'Porte Ilegal de Arma',motivo:'Controlar o uso de armas de fogo',descricao:'Possuir arma de fogo sem autorização legal.',pena:36,multa:8000},
+{id:7,nome:'Lesão Corporal',motivo:'Proteger a integridade física',descricao:'Ofender a integridade corporal ou saúde de outrem.',pena:18,multa:3000},
+{id:8,nome:'Ameaça',motivo:'Proteger a tranquilidade pública',descricao:'Ameaçar alguém por palavra, gesto ou escrito.',pena:6,multa:1000}
+];
+let selectedCrimes=new Set();
+let circunstancias={confesso:false,advogado:false,primario:false};
+let tags=[];
+let cartorioData=JSON.parse(localStorage.getItem('cartorioData'))||{
+portes:{registros:[],feitos:[],valores:[]},
+casamentos:{registros:[],feitos:[],valores:[]},
+adocoes:{registros:[],feitos:[],valores:[]},
+divorcios:{registros:[],feitos:[],valores:[]}
+};
+let currentCategory=null,currentSubpage=null,editingRegistroIndex=null;
+
+function showPage(page){
+document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+document.getElementById('page-'+page).classList.remove('hidden');
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+document.querySelector('[data-page="'+page+'"]').classList.add('active');
+if(page==='cartorio'){renderCartorioCategories();backToCategories()}
+}
+
+function saveCrimes(){localStorage.setItem('crimes',JSON.stringify(crimes))}
+function saveCartorio(){localStorage.setItem('cartorioData',JSON.stringify(cartorioData))}
+
+function renderCrimes(){
+const list=document.getElementById('crime-list');
+if(crimes.length===0){list.innerHTML='<div class="empty-state"><i class="fas fa-folder-open"></i><p>Nenhum crime cadastrado. Clique em "Adicionar Crime" para começar.</p></div>';return}
+list.innerHTML=crimes.map(crime=>`<div class="crime-item ${selectedCrimes.has(crime.id)?'selected':''}" onclick="toggleCrime(${crime.id})"><div class="crime-check">${selectedCrimes.has(crime.id)?'<i class="fas fa-check"></i>':''}</div><div class="crime-info"><div class="crime-name">${crime.nome}</div><div class="crime-desc">${crime.descricao}</div></div><div class="crime-penalty"><div class="pena">${crime.pena} meses</div><div class="multa">R$ ${fmt(crime.multa)}</div></div><div class="crime-actions" onclick="event.stopPropagation()"><button onclick="editCrime(${crime.id})" title="Editar"><i class="fas fa-pen"></i></button><button onclick="deleteCrime(${crime.id})" title="Excluir"><i class="fas fa-trash"></i></button></div></div>`).join('');
+}
+
+function toggleCrime(id){if(selectedCrimes.has(id))selectedCrimes.delete(id);else selectedCrimes.add(id);renderCrimes();updatePreview()}
+function toggleCheckbox(type){circunstancias[type]=!circunstancias[type];document.getElementById('chk-'+type).classList.toggle('active',circunstancias[type]);updatePreview()}
+
+function handleTagInput(e){
+if(e.key==='Enter'){e.preventDefault();const val=e.target.value.trim();if(val&&!tags.includes(val)){tags.push(val);renderTags();updatePreview()}e.target.value=''}
+if(e.key==='Backspace'&&e.target.value===''&&tags.length>0){tags.pop();renderTags();updatePreview()}
+}
+function renderTags(){
+const c=document.getElementById('tag-container'),inp=document.getElementById('tag-input');
+c.innerHTML='';tags.forEach((t,i)=>{const s=document.createElement('span');s.className='tag';s.innerHTML=t+' <button onclick="removeTag('+i+')"><i class="fas fa-times"></i></button>';c.appendChild(s)});c.appendChild(inp);
+}
+function removeTag(i){tags.splice(i,1);renderTags();updatePreview()}
+
+function openModal(mode,id){
+const modal=document.getElementById('modal-crime'),title=document.getElementById('modal-title');
+document.getElementById('crime-edit-id').value=id||'';
+if(mode==='edit'&&id){
+const c=crimes.find(x=>x.id===id);if(!c)return;
+title.textContent='Editar Crime';
+document.getElementById('crime-nome').value=c.nome;document.getElementById('crime-motivo').value=c.motivo;
+document.getElementById('crime-descricao').value=c.descricao;document.getElementById('crime-pena').value=c.pena;document.getElementById('crime-multa').value=c.multa;
+}else{
+title.textContent='Adicionar Crime';
+document.getElementById('crime-nome').value='';document.getElementById('crime-motivo').value='';
+document.getElementById('crime-descricao').value='';document.getElementById('crime-pena').value='';document.getElementById('crime-multa').value='';
+}
+modal.classList.add('active');
+}
+function closeModal(){document.getElementById('modal-crime').classList.remove('active')}
+function saveCrime(){
+const id=document.getElementById('crime-edit-id').value;
+const nome=document.getElementById('crime-nome').value.trim();
+const motivo=document.getElementById('crime-motivo').value.trim();
+const descricao=document.getElementById('crime-descricao').value.trim();
+const pena=parseInt(document.getElementById('crime-pena').value)||0;
+const multa=parseFloat(document.getElementById('crime-multa').value)||0;
+if(!nome){alert('Preencha o nome do crime!');return}
+if(id){const idx=crimes.findIndex(c=>c.id==id);if(idx>=0)crimes[idx]={...crimes[idx],nome,motivo,descricao,pena,multa}}
+else{const newId=crimes.length>0?Math.max(...crimes.map(c=>c.id))+1:1;crimes.push({id:newId,nome,motivo,descricao,pena,multa})}
+saveCrimes();renderCrimes();updatePreview();closeModal();
+}
+function editCrime(id){openModal('edit',id)}
+function deleteCrime(id){if(!confirm('Tem certeza que deseja excluir este crime?'))return;crimes=crimes.filter(c=>c.id!==id);selectedCrimes.delete(id);saveCrimes();renderCrimes();updatePreview()}
+
+function updatePreview(){
+const id=document.getElementById('acusado-id').value.trim();
+const nome=document.getElementById('acusado-nome').value.trim();
+const descricao=document.getElementById('acusado-descricao').value.trim();
+document.getElementById('preview-id').textContent=id?'ID: '+id:'ID: --';
+document.getElementById('preview-nome').textContent=nome?'Nome: '+nome:'Nome: --';
+document.getElementById('preview-descricao').textContent=descricao||'Nenhuma descrição informada.';
+document.getElementById('preview-descricao').style.color=descricao?'var(--text)':'var(--muted)';
+document.getElementById('preview-descricao').style.fontStyle=descricao?'normal':'italic';
+const itensEl=document.getElementById('preview-itens');
+if(tags.length>0){itensEl.innerHTML=tags.map(t=>'<span style="display:inline-block;padding:2px 8px;background:var(--primary-light);border-radius:4px;margin:2px;font-size:12px">'+t+'</span>').join('');itensEl.style.color='var(--text)'}
+else{itensEl.textContent='Nenhum item apreendido.';itensEl.style.color='var(--muted)'}
+const crimesEl=document.getElementById('preview-crimes');
+const selected=crimes.filter(c=>selectedCrimes.has(c.id));
+if(selected.length>0){crimesEl.innerHTML=selected.map(c=>'<div class="preview-crime-tag"><span>'+c.nome+'</span><span style="color:var(--accent);font-weight:700">'+c.pena+'m / R$ '+fmt(c.multa)+'</span></div>').join('')}
+else{crimesEl.innerHTML='<div style="color:var(--muted);font-style:italic">Nenhum crime selecionado.</div>'}
+const circEl=document.getElementById('preview-circunstancias');
+const ativas=[];
+if(circunstancias.confesso)ativas.push('Réu Confesso (-20%)');
+if(circunstancias.advogado)ativas.push('Advogado Presente (-10%)');
+if(circunstancias.primario)ativas.push('Réu Primário (-15%)');
+circEl.innerHTML=ativas.length>0?ativas.map(a=>'<div class="discount-tag"><i class="fas fa-check"></i>'+a+'</div>').join(''):'<span style="color:var(--muted)">Nenhuma circunstância atenuante.</span>';
+let penaTotal=selected.reduce((s,c)=>s+c.pena,0);
+let multaTotal=selected.reduce((s,c)=>s+c.multa,0);
+document.getElementById('total-pena-bruta').textContent=penaTotal+' meses';
+document.getElementById('total-multa-bruta').textContent='R$ '+fmt(multaTotal);
+let desconto=0;
+if(circunstancias.confesso)desconto+=20;
+if(circunstancias.advogado)desconto+=10;
+if(circunstancias.primario)desconto+=15;
+const rowDesconto=document.getElementById('row-desconto');
+if(desconto>0){rowDesconto.style.display='flex';document.getElementById('total-desconto').textContent='-'+desconto+'%'}
+else{rowDesconto.style.display='none'}
+const penaFinal=Math.max(0,Math.round(penaTotal*(1-desconto/100)));
+const multaFinal=Math.max(0,Math.round(multaTotal*(1-desconto/100)*100)/100);
+document.getElementById('total-pena-final').textContent=penaFinal+' meses';
+document.getElementById('total-multa-final').textContent='R$ '+fmt(multaFinal);
+}
+function fmt(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2})}
+
+['acusado-id','acusado-nome','acusado-descricao'].forEach(id=>{document.getElementById(id).addEventListener('input',updatePreview)});
+
+// ==================== CARTORIO ====================
+const cats=[
+{key:'portes',nome:'Portes de Armas',icon:'fa-gun',cls:'portes',emoji:'🔫',serv:[{key:'registros',nome:'Registrar Porte de Arma',icon:'fa-file-signature'},{key:'feitos',nome:'Portes Feitos',icon:'fa-check-circle'},{key:'valores',nome:'Regras e Valor do Porte',icon:'fa-dollar-sign'}]},
+{key:'casamentos',nome:'Certidões de Casamento',icon:'fa-ring',cls:'casamentos',emoji:'💍',serv:[{key:'registros',nome:'Registrar Casamentos',icon:'fa-file-signature'},{key:'feitos',nome:'Casamentos Feitos',icon:'fa-check-circle'},{key:'valores',nome:'Valor dos Casamentos',icon:'fa-dollar-sign'}]},
+{key:'adocoes',nome:'Certidões de Adoção',icon:'fa-baby',cls:'adocao',emoji:'👶',serv:[{key:'registros',nome:'Registrar Adoções',icon:'fa-file-signature'},{key:'feitos',nome:'Adoções Feitas',icon:'fa-check-circle'},{key:'valores',nome:'Valor da Adoção',icon:'fa-dollar-sign'}]},
+{key:'divorcios',nome:'Certidões de Divórcio',icon:'fa-file-contract',cls:'divorcio',emoji:'🔓',serv:[{key:'registros',nome:'Registrar Divórcio',icon:'fa-file-signature'},{key:'feitos',nome:'Divórcios Feitos',icon:'fa-check-circle'},{key:'valores',nome:'Valor do Divórcio',icon:'fa-dollar-sign'}]}
+];
+
+function renderCartorioCategories(){
+const container=document.getElementById('cartorio-categories');
+container.innerHTML=cats.map(cat=>{
+const counts=cat.serv.map(s=>cartorioData[cat.key][s.key].length);
+const total=counts.reduce((a,b)=>a+b,0);
+return '<div class="cartorio-category"><div class="cat-header" onclick="toggleCat(\''+cat.key+'\')"><div class="cat-icon '+cat.cls+'"><i class="fas '+cat.icon+'"></i></div><div class="cat-info"><h3>'+cat.emoji+' '+cat.nome+'</h3><span>'+total+' registro(s) no total</span></div><i class="fas fa-chevron-down cat-toggle" id="toggle-'+cat.key+'"></i></div><div class="cat-body" id="body-'+cat.key+'"><div class="cat-body-inner">'+cat.serv.map((s,i)=>'<div class="service-item" onclick="openSubpage(\''+cat.key+'\',\''+s.key+'\')"><i class="fas '+s.icon+'"></i><span>'+s.nome+'</span><span class="service-count">'+counts[i]+'</span></div>').join('')+'</div></div></div>';
+}).join('');
+updateStats();
+}
+
+function toggleCat(key){document.getElementById('body-'+key).classList.toggle('open');document.getElementById('toggle-'+key).classList.toggle('open')}
+
+function updateStats(){
+let total=0,pendentes=0,concluidos=0,valorTotal=0;
+Object.keys(cartorioData).forEach(cat=>{
+Object.keys(cartorioData[cat]).forEach(serv=>{
+const arr=cartorioData[cat][serv];
+total+=arr.length;
+arr.forEach(item=>{if(item.status==='Concluído')concluidos++;else pendentes++;if(item.valor)valorTotal+=parseFloat(item.valor)||0});
+});
+});
+document.getElementById('stat-total').textContent=total;
+document.getElementById('stat-pendentes').textContent=pendentes;
+document.getElementById('stat-concluidos').textContent=concluidos;
+document.getElementById('stat-valor').textContent='R$ '+fmt(valorTotal);
+}
+
+function openSubpage(catKey,servKey){
+currentCategory=catKey;currentSubpage=servKey;
+const cat=cats.find(c=>c.key===catKey);
+const serv=cat.serv.find(s=>s.key===servKey);
+document.getElementById('cartorio-categories').classList.add('hidden');
+document.getElementById('cartorio-subpage').classList.remove('hidden');
+const content=document.getElementById('subpage-content');
+const data=cartorioData[catKey][servKey];
+let th='',tr='';
+if(servKey==='registros'){
+th='<th>Solicitante</th><th>CPF</th><th>Data</th><th>Status</th><th>Ações</th>';
+tr=data.length?data.map((item,i)=>'<tr><td><strong>'+(item.nome||'-')+'</strong></td><td>'+(item.cpf||'-')+'</td><td>'+(item.data||'-')+'</td><td><span class="status-badge status-'+((item.status||'Pendente').toLowerCase().replace(/\\s/g,''))+'">'+(item.status||'Pendente')+'</span></td><td><button class="btn btn-sm btn-outline" onclick="editRegistro('+i+')"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-outline" onclick="deleteRegistro('+i+')" style="color:var(--accent);margin-left:4px"><i class="fas fa-trash"></i></button></td></tr>').join(''):'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Nenhum registro encontrado.</td></tr>';
+}else if(servKey==='feitos'){
+th='<th>Protocolo</th><th>Nome</th><th>Data Conclusão</th><th>Detalhes</th><th>Ações</th>';
+tr=data.length?data.map((item,i)=>'<tr><td><strong>#'+(item.protocolo||'-')+'</strong></td><td>'+(item.nome||'-')+'</td><td>'+(item.data||'-')+'</td><td>'+(item.detalhes||'-')+'</td><td><button class="btn btn-sm btn-outline" onclick="editRegistro('+i+')"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-outline" onclick="deleteRegistro('+i+')" style="color:var(--accent);margin-left:4px"><i class="fas fa-trash"></i></button></td></tr>').join(''):'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Nenhum registro encontrado.</td></tr>';
+}else if(servKey==='valores'){
+th='<th>Tipo</th><th>Valor (R$)</th><th>Descrição</th><th>Vigência</th><th>Ações</th>';
+tr=data.length?data.map((item,i)=>'<tr><td><strong>'+(item.tipo||'-')+'</strong></td><td style="color:var(--warning);font-weight:700">R$ '+fmt(parseFloat(item.valor)||0)+'</td><td>'+(item.descricao||'-')+'</td><td>'+(item.vigencia||'-')+'</td><td><button class="btn btn-sm btn-outline" onclick="editRegistro('+i+')"><i class="fas fa-pen"></i></button><button class="btn btn-sm btn-outline" onclick="deleteRegistro('+i+')" style="color:var(--accent);margin-left:4px"><i class="fas fa-trash"></i></button></td></tr>').join(''):'<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:30px">Nenhum valor cadastrado.</td></tr>';
+}
+content.innerHTML='<div class="subpage-header"><i class="fas '+serv.icon+'" style="color:var(--accent)"></i><h2>'+cat.emoji+' '+cat.nome+' — '+serv.nome+'</h2></div><button class="btn btn-primary btn-sm" style="margin-bottom:20px" onclick="openRegistroModal()"><i class="fas fa-plus"></i>Novo Registro</button><div style="overflow-x:auto"><table class="data-table"><thead><tr>'+th+'</tr></thead><tbody>'+tr+'</tbody></table></div>';
+}
+
+function backToCategories(){
+document.getElementById('cartorio-categories').classList.remove('hidden');
+document.getElementById('cartorio-subpage').classList.add('hidden');
+currentCategory=null;currentSubpage=null;
+renderCartorioCategories();
+}
+
+function openRegistroModal(editIndex){
+editingRegistroIndex=editIndex!==undefined?editIndex:null;
+const modal=document.getElementById('modal-registro');
+const title=document.getElementById('modal-reg-title');
+const body=document.getElementById('modal-reg-body');
+let form='';
+if(currentSubpage==='registros'){
+const item=editingRegistroIndex!==null?cartorioData[currentCategory][currentSubpage][editingRegistroIndex]:{};
+form='<div class="form-row"><div class="form-group"><label>Nome do Solicitante</label><input type="text" class="form-control" id="reg-nome" value="'+(item.nome||'')+'"></div><div class="form-group"><label>CPF</label><input type="text" class="form-control" id="reg-cpf" placeholder="000.000.000-00" value="'+(item.cpf||'')+'"></div></div><div class="form-row"><div class="form-group"><label>Data do Registro</label><input type="date" class="form-control" id="reg-data" value="'+(item.data||'')+'"></div><div class="form-group"><label>Status</label><select class="form-control" id="reg-status"><option value="Pendente" '+((item.status||'')==='Pendente'?'selected':'')+'>Pendente</option><option value="Em Andamento" '+((item.status||'')==='Em Andamento'?'selected':'')+'>Em Andamento</option><option value="Concluído" '+((item.status||'')==='Concluído'?'selected':'')+'>Concluído</option></select></div></div><div class="form-group"><label>Observações</label><textarea class="form-control" id="reg-obs">'+(item.obs||'')+'</textarea></div>';
+}else if(currentSubpage==='feitos'){
+const item=editingRegistroIndex!==null?cartorioData[currentCategory][currentSubpage][editingRegistroIndex]:{};
+form='<div class="form-row"><div class="form-group"><label>Número do Protocolo</label><input type="text" class="form-control" id="reg-protocolo" placeholder="Ex: 2024-001" value="'+(item.protocolo||'')+'"></div><div class="form-group"><label>Nome</label><input type="text" class="form-control" id="reg-nome" value="'+(item.nome||'')+'"></div></div><div class="form-row"><div class="form-group"><label>Data de Conclusão</label><input type="date" class="form-control" id="reg-data" value="'+(item.data||'')+'"></div><div class="form-group"><label>Responsável</label><input type="text" class="form-control" id="reg-responsavel" value="'+(item.responsavel||'')+'"></div></div><div class="form-group"><label>Detalhes</label><textarea class="form-control" id="reg-detalhes">'+(item.detalhes||'')+'</textarea></div>';
+}else if(currentSubpage==='valores'){
+const item=editingRegistroIndex!==null?cartorioData[currentCategory][currentSubpage][editingRegistroIndex]:{};
+form='<div class="form-row"><div class="form-group"><label>Tipo de Taxa/Serviço</label><input type="text" class="form-control" id="reg-tipo" placeholder="Ex: Registro de Casamento" value="'+(item.tipo||'')+'"></div><div class="form-group"><label>Valor (R$)</label><input type="number" class="form-control" id="reg-valor" step="0.01" min="0" value="'+(item.valor||'')+'"></div></div><div class="form-row"><div class="form-group"><label>Vigência</label><input type="text" class="form-control" id="reg-vigencia" placeholder="Ex: A partir de 01/01/2024" value="'+(item.vigencia||'')+'"></div><div class="form-group"><label>Descrição</label><input type="text" class="form-control" id="reg-descricao" value="'+(item.descricao||'')+'"></div></div>';
+}
+title.textContent=editingRegistroIndex!==null?'Editar Registro':'Novo Registro';
+body.innerHTML=form;
+modal.classList.add('active');
+}
+
+function closeRegistroModal(){document.getElementById('modal-registro').classList.remove('active');editingRegistroIndex=null}
+
+function saveRegistro(){
+let obj={};
+if(currentSubpage==='registros'){
+obj={nome:document.getElementById('reg-nome').value.trim(),cpf:document.getElementById('reg-cpf').value.trim(),data:document.getElementById('reg-data').value,status:document.getElementById('reg-status').value,obs:document.getElementById('reg-obs').value.trim()};
+}else if(currentSubpage==='feitos'){
+obj={protocolo:document.getElementById('reg-protocolo').value.trim(),nome:document.getElementById('reg-nome').value.trim(),data:document.getElementById('reg-data').value,responsavel:document.getElementById('reg-responsavel').value.trim(),detalhes:document.getElementById('reg-detalhes').value.trim()};
+}else if(currentSubpage==='valores'){
+obj={tipo:document.getElementById('reg-tipo').value.trim(),valor:document.getElementById('reg-valor').value,descricao:document.getElementById('reg-descricao').value.trim(),vigencia:document.getElementById('reg-vigencia').value.trim()};
+}
+if(editingRegistroIndex!==null){cartorioData[currentCategory][currentSubpage][editingRegistroIndex]=obj}
+else{cartorioData[currentCategory][currentSubpage].push(obj)}
+saveCartorio();openSubpage(currentCategory,currentSubpage);closeRegistroModal();
+}
+
+function editRegistro(i){openRegistroModal(i)}
+function deleteRegistro(i){if(!confirm('Tem certeza que deseja excluir este registro?'))return;cartorioData[currentCategory][currentSubpage].splice(i,1);saveCartorio();openSubpage(currentCategory,currentSubpage)}
+
+// Init
+renderCrimes();
+renderCartorioCategories();
+</script>
+</body>
+</html>
